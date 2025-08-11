@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2025 Calvin Vette
+
+[project]
+name = "gpu-cluster-acceptance"
+version = "0.1.0"
+description = "Progressive GPU cluster acceptance checks + FSDP LoRA training smoke"
+readme = "README.md"
+license = { text = "AGPL-3.0-only" }
+requires-python = ">=3.10"
+classifiers = [
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: System :: Clustering",
+  "Topic :: System :: Distributed Computing",
+]
+
+dependencies = [
+  "torch>=2.3",
+  "transformers>=4.44",
+  "accelerate>=0.33",
+  "peft>=0.12",
+  "datasets>=2.20",
+  "mlflow>=2.14",
+  "pynvml>=11.5",
+  "pyyaml>=6",
+  "rich>=13.7",
+  "pandas>=2.2",
+  "numpy>=1.26",
+  "scipy>=1.10",
+  "flash-attn>=2.5.9; platform_machine=='x86_64'",
+  "vllm>=0.6.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}

@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: gpu-cluster-acceptance
+Upstream-Contact: Calvin Vette <calvinvette@gmail.com>
+Source: https://github.com/OWNER/REPO
+
+Files: *
+Copyright: 2025 Calvin Vette
+License: AGPL-3.0-only

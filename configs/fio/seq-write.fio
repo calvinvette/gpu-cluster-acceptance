@@ -1,0 +1,9 @@
+; # SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2025 Calvin Vette
+[seq-write]
+rw=write
+ioengine=libaio
+bs=1M
+iodepth=32
+size=10G
+direct=1

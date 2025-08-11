@@ -1,0 +1,35 @@
+gpu-cluster-acceptance/
+├─ Dockerfile.amd64
+├─ Dockerfile.arm64
+├─ LICENSE                   # created by scripts/fetch_license.sh (AGPL-3.0 full text)
+├─ README.md
+├─ pyproject.toml
+├─ setup.cfg
+├─ .pre-commit-config.yaml
+├─ .reuse/dep5
+├─ .github/workflows/
+│  ├─ build-push.yml
+│  ├─ cluster-check.yml
+│  └─ reuse.yml
+├─ configs/
+│  ├─ expected.yaml
+│  ├─ dcgm/diag.conf
+│  └─ fio/{seq-read.fio,seq-write.fio,rand-read.fio,rand-write.fio}
+├─ scripts/
+│  ├─ 00_env_probe.sh
+│  ├─ 01_cuda_probe.py
+│  ├─ 02_nccl_probe.sh
+│  ├─ 03_dcgm_diag.sh
+│  ├─ 04_nvlink_matrix.sh
+│  ├─ 05_infiniband_probe.sh
+│  ├─ 06_nccl_multinode.sbatch
+│  ├─ 07_fio.sh
+│  ├─ 08_train_fsdp_lora.py
+│  └─ fetch_license.sh
+├─ training/
+│  ├─ dataset_stub.py
+│  ├─ fsdp_utils.py
+│  └─ lora_cfg.yaml
+└─ slurm/
+   ├─ train.sbatch
+   └─ env.example

@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2025 Calvin Vette
+
+drivers:
+  nvidia: ">=555.0"
+cuda:
+  runtime: ">=12.4"
+pytorch:
+  version: ">=2.3"
+nccl:
+  version: ">=2.19"
+libs:
+  tensorrt: ">=10.0"
+  flash_attn: ">=2.5.9"
+  vllm: ">=0.6.0"
+
+hardware:
+  min_gpus: 1
+  expect_nvlink: true
+  min_vram_gb: 80
+
+perf_thresholds:
+  nvbandwidth_g2g_gb_s: 300
+  nccl_allreduce_gb_s: 250
+  ib_read_bw_gbps: 100
+  ib_write_bw_gbps: 100
+  fio_seq_read_MBps: 2500
+
+dcgm:
+  repeats: 5
+  level: 1
+  fail_early: true

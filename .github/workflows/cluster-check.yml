@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2025 Calvin Vette
+
+name: cluster-check
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Image tag"
+        required: true
+        default: "amd64-latest"
+jobs:
+  probe:
+    runs-on: [self-hosted, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login GHCR
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Pull
+        run: docker pull ghcr.io/${{ github.repository }}:${{ github.event.inputs.image }}
+      - name: Progressive checks
+        run: |
+          docker run --rm --gpus all --ipc=host --network host             ghcr.io/${{ github.repository }}:${{ github.event.inputs.image }}             bash -lc 'set -e; ./scripts/00_env_probe.sh &&                         python3 scripts/01_cuda_probe.py &&                         ./scripts/02_nccl_probe.sh &&                         ./scripts/03_dcgm_diag.sh &&                         ./scripts/04_nvlink_matrix.sh &&                         ./scripts/07_fio.sh'
