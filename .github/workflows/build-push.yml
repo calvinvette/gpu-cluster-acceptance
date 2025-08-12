@@ -30,21 +30,21 @@ jobs:
       - name: Free disk space (save ~20–30 GB)
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
+          tool-cache: true # 4.9GB
+          android: true # 9.2GB
+          dotnet: false # Not installed, so skip deleting it
+          haskell: true # 6.2GB
+          large-packages: false # About 5.1GB, but takes forever
           docker-images: false   # keep, since we need Docker
-          swap-storage: true
+          swap-storage: true # 4GB
       - name: Check disk usage
         run: df -h
       # Alternate version:
-      - name: Manual cleanup
-        run: |
-          sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
-      - name: Check disk usage
-        run: df -h
+      # - name: Manual cleanup
+      #   run: |
+      #     sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
+      # - name: Check disk usage
+      #   run: df -h
 
       - name: Prune Docker leftovers
         run: |
