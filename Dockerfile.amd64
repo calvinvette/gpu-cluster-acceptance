@@ -70,7 +70,8 @@ RUN make -C /opt/nccl-tests MPI=1
 
 
 # ---- runtime ----
-FROM nvcr.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
+# FROM nvcr.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
+FROM docker.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 LABEL org.opencontainers.image.licenses="AGPL-3.0-only"
 
