@@ -31,7 +31,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # Python deps (install only what you need)
 COPY pyproject.toml /app/pyproject.toml
-RUN pip3 install --no-cache-dir --upgrade pip && pip3 install -e /app
+RUN pip3 install --no-cache-dir --upgrade pip
+RUN pip3 install -e /app
 
 # PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
 RUN pip3 install --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
