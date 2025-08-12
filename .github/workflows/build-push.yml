@@ -43,8 +43,6 @@ jobs:
       - name: Manual cleanup
         run: |
           sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
-          docker system prune -af || true
-          docker builder prune -af || true
       - name: Check disk usage
         run: df -h
 
