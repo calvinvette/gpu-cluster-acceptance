@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 [![REUSE status](../../actions/workflows/reuse.yml/badge.svg)](../../actions/workflows/reuse.yml)
-[![Container build](https://github.com/calvinvette/gpu-acceptance-testing/actions/workflows/build-push.yml/badge.svg)](../../actions/workflows/build-push.yml)
+[![Container build](../../actions/workflows/build-push.yml/badge.svg)](../../actions/workflows/build-push.yml)
 
 # GPU Cluster Acceptance & Distributed Training Test Harness (Smoke Testing)
 
