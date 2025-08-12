@@ -22,9 +22,11 @@ jobs:
 
       - name: REUSE lint
         uses: fsfe/reuse-action@v5
-        
+      # The PyTorch image from NVIDIA is so effing big that GitHub
+      # runs out of diskspace trying to package it with our scripts...
+      # Free up some space to make the build green.
       - name: Free disk space (save ~20–30 GB)
-        uses: jlumbroso/free-disk-space@v1
+        uses: jlumbroso/free-disk-space
         with:
           tool-cache: true
           android: true
@@ -33,6 +35,12 @@ jobs:
           large-packages: true
           docker-images: false   # keep, since we need Docker
           swap-storage: true
+      # Alternate version:
+      # - name: Manual cleanup
+      #   run: |
+      #     sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
+      #     docker system prune -af || true
+      #     docker builder prune -af || true
 
       - name: Prune Docker leftovers
         run: |
@@ -58,6 +66,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:amd64-${{ github.sha }}
             ghcr.io/${{ github.repository }}:amd64-latest
+      # Temporarily disable the arm64 (Orin & Thor AGX Developer Kits)
       # - name: Build & push (arm64)
       #   uses: docker/build-push-action@v6
       #   with:
