@@ -90,6 +90,9 @@ COPY pyproject.toml /app/pyproject.toml
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uvicorn
 
+ENV PATH=${PATH}:~/.local/bin/
+RUN echo $PATH
+
 # PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
 RUN uv pip3 install --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
     torch \
