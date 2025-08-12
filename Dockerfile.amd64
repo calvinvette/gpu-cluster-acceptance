@@ -1,5 +1,6 @@
 # ---- builder ----
-FROM nvcr.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
+# FROM nvcr.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
+FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git build-essential cmake libopenmpi-dev openmpi-bin && \
