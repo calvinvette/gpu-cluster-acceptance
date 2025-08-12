@@ -31,8 +31,8 @@ RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
 # RUN . /opt/hpcx/hpcx-init.sh
 
 # nccl-tests
-RUN source /opt/hpcx/hpcx-init.sh && git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests && \
-    make -C /opt/nccl-tests MPI=1
+RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
+RUN . /opt/hpcx/hpcx-init.sh && make -C /opt/nccl-tests MPI=1
 
 
 
