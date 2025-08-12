@@ -25,6 +25,8 @@ jobs:
       # The PyTorch image from NVIDIA is so effing big that GitHub
       # runs out of diskspace trying to package it with our scripts...
       # Free up some space to make the build green.
+      - name: Check disk usage
+        run: df -h
       - name: Free disk space (save ~20–30 GB)
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -35,12 +37,16 @@ jobs:
           large-packages: true
           docker-images: false   # keep, since we need Docker
           swap-storage: true
+      - name: Check disk usage
+        run: df -h
       # Alternate version:
-      # - name: Manual cleanup
-      #   run: |
-      #     sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
-      #     docker system prune -af || true
-      #     docker builder prune -af || true
+      - name: Manual cleanup
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache || true
+          docker system prune -af || true
+          docker builder prune -af || true
+      - name: Check disk usage
+        run: df -h
 
       - name: Prune Docker leftovers
         run: |
