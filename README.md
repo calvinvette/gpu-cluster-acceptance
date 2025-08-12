@@ -1,8 +1,31 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 [![REUSE status](https://github.com/OWNER/REPO/actions/workflows/reuse.yml/badge.svg)](../../actions/workflows/reuse.yml)
-# GPU Cluster Acceptance & Training Smoke
+[![Container build](https://github.com/OWNER/REPO/actions/workflows/build-push.yml/badge.svg)](../../actions/workflows/build-push.yml)
 
-Portable, progressive acceptance tests for NVIDIA GPU nodes (Orin/Thor, H100/H200), plus an optional FSDP+LoRA training smoke on open models/datasets. Builds a container, runs checks, and (optionally) logs metrics to MLflow.
+# GPU Cluster Acceptance & Distributed Training Test Harness (Smoke Testing)
+
+This project is intended to do acceptance testing of the installation of GPU-accelerated hardware.
+
+This repository provides a portable, open-source containerized test harness for **GPU cluster acceptance testing** and **distributed model training**.  
+
+It is designed for **Cloud/Infrastructure engineers** who need to validate NVIDIA GPU systems ranging from embedded developer kits to large-scale NVLink/NVSwitch clusters.
+
+This can be run as a container to verify the installation of key software, key performance metrics
+such as Model-Flops Utilization, memory bandwidth, NVLink and Infiniband networking throughput and latencies.
+
+At the moment it focuses on NVIDIA H100/H200 and Orin AGX/Thor AGX Developer kits. Future versions
+will support other environments including RK3588.
+
+Methodology: Fail-Fast Progressive Testing
+
+The test harness follows a fail-fast progression inspired by Together AI’s GPU cluster testing methodology:
+
+	1. Quick sanity checks first — cheap and fast to catch obvious misconfigurations.
+	2. Hardware/driver validation — fail early if the GPUs, drivers, or libraries are wrong/missing.
+	3. Progressively heavier tests — storage, networking, NCCL, NVLink, then multi-node scale-out.
+	4. Full distributed model training — only run after all infrastructure checks pass.
+
+This ensures we don’t waste expensive cluster time on nodes that will fail under load.
 
 ## Quick start
 ```bash
@@ -11,6 +34,92 @@ docker build -f Dockerfile.amd64 -t ghcr.io/OWNER/REPO:amd64-local .
 # run progressive checks
 docker run --rm --gpus all --ipc=host --network host ghcr.io/OWNER/REPO:amd64-local   bash -lc 'set -e; ./scripts/00_env_probe.sh && python3 scripts/01_cuda_probe.py &&             ./scripts/02_nccl_probe.sh && ./scripts/03_dcgm_diag.sh &&             ./scripts/04_nvlink_matrix.sh && ./scripts/07_fio.sh'
 ```
+
+
+---
+
+## Project Layout
+
+```text
+.
+├── .github/workflows/           # CI workflows (REUSE compliance, container build/push)
+├── configs/
+│   ├── expected.yaml             # Expected driver, CUDA, NCCL, etc. versions
+│   └── fio/                      # Storage performance job files
+├── docker/
+│   ├── Dockerfile.amd64          # H100/H200 + x86_64 base
+│   └── Dockerfile.arm64          # Orin/Thor + Jetson ARM base
+├── jobs/                         # SLURM job files for NCCL & multi-node tests
+├── scripts/                      # Test scripts (env probe, CUDA probe, NCCL tests, DCGM, etc.)
+├── training/
+│   └── fsdp_train.py             # PyTorch FSDP LoRA training script
+├── LICENSE                       # Root AGPL-3.0 license
+├── LICENSES/                     # SPDX-compliant license texts (symlink to LICENSE)
+├── pyproject.toml                 # Python project metadata
+├── setup.cfg                      # Packaging config
+├── fetch_license.sh               # Script to fetch AGPL license text
+└── README.md                      # This file
+```
+
+
+Test Stages
+
+1. Environment & Driver Checks
+	•	Verify GPU driver presence and version via nvidia-smi.
+	•	Compare against expected driver versions (configs/expected.yaml).
+	•	Capture GPU model, vRAM, and topology (nvidia-smi topo -m).
+	•	For Jetson/embedded devices, optionally use jetson_stats.
+
+2. CUDA & Library Verification
+	•	Confirm CUDA toolkit and runtime versions.
+	•	Check availability and version of key acceleration libs:
+	•	TensorRT
+	•	FlashAttention
+	•	PyTorch
+	•	vLLM
+
+3. NCCL & DCGM
+	•	Confirm NCCL is installed and matches expected version.
+	•	Run DCGM diagnostics with configurable iteration count (default 5) in fail-early mode.
+	•	Log GPU health metrics.
+
+4. Optional Stress Test
+	•	Run gpu-burn for a configurable duration.
+	•	Useful for catching marginal cooling/power issues.
+
+5. NVLink / NVSwitch Validation
+	•	Use NCCL tests (all_reduce_perf, all_gather_perf, etc.) and nvbandwidth to produce GPU-to-GPU bandwidth matrix.
+	•	Flag anomalies vs expected NVLink/NVSwitch performance.
+
+6. Multi-Node & Infiniband Tests (8-GPU boxes only)
+	•	Check Infiniband connectivity/config (ibstat, ibping).
+	•	Measure latency and throughput with ib_read_bw / ib_write_bw.
+	•	Run NCCL tests with SLURM across node pairs → scale up to full cluster.
+
+7. Storage Performance
+	•	Run fio jobs:
+	•	Sequential read
+	•	Sequential write
+	•	Random read
+	•	Random write
+	•	Configurable via configs/fio/*.fio.
+
+8. Distributed Model Training (FSDP LoRA)
+	•	Train an open-source model (e.g., meta-llama/Llama-3.2-3B-Instruct) with PyTorch FSDP + LoRA.
+	•	Monitor:
+	•	Training throughput (tokens/sec)
+	•	MFU (Model FLOPs Utilization)
+	•	GPU utilization
+	•	Network latency (all-reduce timings)
+	•	Metrics sent to MLFlow (default) or Weights & Biases.
+
+⸻
+
+Base Images
+	•	x86_64 / H100 / H200: nvcr.io/nvidia/pytorch:24.07-py3
+	•	ARM64 / Orin / Thor: nvcr.io/nvidia/l4t-ml:r36.3.0-py3
+
+
 
 ## Acknowledgments
 Test progression and methodology inspired by
