@@ -116,4 +116,4 @@ WORKDIR /workspace
 COPY --chown=trainer:trainer scripts/ ./scripts/
 COPY --chown=trainer:trainer training/ ./training/
 COPY --chown=trainer:trainer configs/ ./configs/
-ENV PATH="/opt/nvbandwidth:${PATH}"
+ENV PATH="/opt/nvbandwidth:/opt/nccl-tests:${PATH}"
