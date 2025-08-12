@@ -9,6 +9,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN git clone --depth 1 https://github.com/NVIDIA/nvbandwidth /opt/nvbandwidth
 WORKDIR /opt/nvbandwidth
 # RUN . ./debian_install.sh
+RUN sudo add-apt-repository universe
 RUN apt-get install -y libboost-all-dev libboost-program-options-dev
 RUN mkdir -p /opt/nvbandwidth/build
 WORKDIR /opt/nvbandwidth/build
