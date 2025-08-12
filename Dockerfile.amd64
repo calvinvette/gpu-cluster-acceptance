@@ -42,7 +42,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # (Optional) DCGM tools inside container if you want to run dcgmi from here
-RUN apt-get update && apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
 
 # Python deps (install only what you need)
 COPY pyproject.toml /app/pyproject.toml
