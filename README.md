@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
-[![REUSE status](https://github.com/OWNER/REPO/actions/workflows/reuse.yml/badge.svg)](../../actions/workflows/reuse.yml)
-[![Container build](https://github.com/OWNER/REPO/actions/workflows/build-push.yml/badge.svg)](../../actions/workflows/build-push.yml)
+[![REUSE status](https://github.com/calvinvette/gpu-acceptance-testing/actions/workflows/reuse.yml/badge.svg)](../../actions/workflows/reuse.yml)
+[![Container build](https://github.com/calvinvette/gpu-acceptance-testing/actions/workflows/build-push.yml/badge.svg)](../../actions/workflows/build-push.yml)
 
 # GPU Cluster Acceptance & Distributed Training Test Harness (Smoke Testing)
 
@@ -30,9 +30,9 @@ Please note that this repo is an initial launch and will be migrated to the Next
 ## Quick start
 ```bash
 # build (amd64)
-docker build -f Dockerfile.amd64 -t ghcr.io/OWNER/REPO:amd64-local .
+docker build -f Dockerfile.amd64 -t ghcr.io/calvinvette/gpu-acceptance-testing:amd64-local .
 # run progressive checks
-docker run --rm --gpus all --ipc=host --network host ghcr.io/OWNER/REPO:amd64-local   bash -lc 'set -e; ./scripts/00_env_probe.sh && python3 scripts/01_cuda_probe.py &&             ./scripts/02_nccl_probe.sh && ./scripts/03_dcgm_diag.sh &&             ./scripts/04_nvlink_matrix.sh && ./scripts/07_fio.sh'
+docker run --rm --gpus all --ipc=host --network host ghcr.io/calvinvette/gpu-acceptance-testing:amd64-local   bash -lc 'set -e; ./scripts/00_env_probe.sh && python3 scripts/01_cuda_probe.py &&             ./scripts/02_nccl_probe.sh && ./scripts/03_dcgm_diag.sh &&             ./scripts/04_nvlink_matrix.sh && ./scripts/07_fio.sh'
 ```
 
 
