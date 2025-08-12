@@ -102,7 +102,7 @@ RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.
     torchvision \
     torchaudio
 
-RUN uv pip install -e /app
+RUN uv pip install --system -e /app
 
 # Copy binaries from builder
 COPY --from=builder /opt/nvbandwidth /opt/nvbandwidth
