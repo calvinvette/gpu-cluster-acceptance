@@ -22,7 +22,7 @@ RUN cmake ..
 RUN make -C /opt/nvbandwidth/build
 
 WORKDIR /tmp
-RUN curl -o https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-inbox-ubuntu22.04-cuda12-x86_64.tbz
+RUN curl -LO https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-inbox-ubuntu22.04-cuda12-x86_64.tbz
 # RUN wget -O 'https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz'
 RUN tar -C /opt -xvpf hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz
 RUN rm /tmp/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz
