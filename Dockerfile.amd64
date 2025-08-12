@@ -88,6 +88,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # Python deps (install only what you need)
 COPY pyproject.toml /app/pyproject.toml
+WORKDIR /app
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uvicorn uv
 
@@ -96,7 +97,7 @@ RUN echo $PATH
 # RUN find / -name uv
 
 # PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
-RUN uv pip3 install --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
+RUN uv pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
     torch \
     torchvision \
     torchaudio
