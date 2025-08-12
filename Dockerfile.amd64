@@ -6,8 +6,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # nvbandwidth
-RUN git clone --depth 1 https://github.com/NVIDIA/nvbandwidth /opt/nvbandwidth && \
-    make -C /opt/nvbandwidth
+RUN git clone --depth 1 https://github.com/NVIDIA/nvbandwidth /opt/nvbandwidth 
+RUN make -C /opt/nvbandwidth
 
 # nccl-tests
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests && \
