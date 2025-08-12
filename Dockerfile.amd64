@@ -7,8 +7,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # nvbandwidth
 RUN git clone --depth 1 https://github.com/NVIDIA/nvbandwidth /opt/nvbandwidth
-RUN mkdir -p /opt/nvbandwidth/build && cd /opt/nvbandwidth/build && cmake .. 
+RUN mkdir -p /opt/nvbandwidth/build
+WORKDIR /opt/nvbandwidth/build
+RUN cmake ..
 RUN make -C /opt/nvbandwidth/build
+
+WORKDIR /
 
 # nccl-tests
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests && \
