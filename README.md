@@ -1,4 +1,5 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
+[![REUSE status](https://github.com/OWNER/REPO/actions/workflows/reuse.yml/badge.svg)](../../actions/workflows/reuse.yml)
 # GPU Cluster Acceptance & Training Smoke
 
 Portable, progressive acceptance tests for NVIDIA GPU nodes (Orin/Thor, H100/H200), plus an optional FSDP+LoRA training smoke on open models/datasets. Builds a container, runs checks, and (optionally) logs metrics to MLflow.

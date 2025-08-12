@@ -1,13 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# Copyright (c) 2025 Calvin Vette
-
 name: reuse-compliance
 on:
   push:
   pull_request:
+
 jobs:
   reuse:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: fsfe/reuse-action@v5
+        with:
+          fetch-depth: 0
+      - name: REUSE lint
+        uses: fsfe/reuse-action@v5
