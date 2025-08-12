@@ -32,7 +32,27 @@ RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
 
 # nccl-tests
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
-RUN . /opt/hpcx/hpcx-init.sh && make -C /opt/nccl-tests MPI=1
+# RUN . /opt/hpcx/hpcx-init.sh && make -C /opt/nccl-tests MPI=1
+ENV HPCX_DIR="/opt/hpcx"
+ENV HPCX_UCX_DIR="/opt/hpcx/ucx"
+ENV HPCX_UCC_DIR="/opt/hpcx/ucc"
+ENV HPCX_SHARP_DIR="/opt/hpcx/sharp"
+ENV HPCX_HCOLL_DIR="/opt/hpcx/hcoll"
+ENV HPCX_MPI_DIR="/opt/hpcx/ompi"
+ENV HPCX_OSHMEM_DIR="/opt/hpcx/ompi"
+ENV HPCX_MPI_TESTS_DIR="/opt/hpcx/ompi/tests"
+ENV HPCX_OSU_DIR="/opt/hpcx/ompi/tests/osu-micro-benchmarks"
+ENV HPCX_OSU_CUDA_DIR="/opt/hpcx/ompi/tests/osu-micro-benchmarks-cuda"
+ENV HPCX_CLUSTERKIT_DIR="/opt/hpcx/clusterkit"
+ENV HPCX_NCCLNET_PLUGIN_DIR="/opt/hpcx/ncclnet_plugin"
+ENV HPCX_NCCL_RDMA_SHARP_PLUGIN_DIR="/opt/hpcx/nccl_rdma_sharp_plugin"
+ENV OMPI_HOME="/opt/hpcx/ompi"
+ENV MPI_HOME="/opt/hpcx/ompi"
+ENV OSHMEM_HOME="/opt/hpcx/ompi"
+ENV SHMEM_HOME="/opt/hpcx/ompi"
+ENV PATH="/home/calvin/.local/bin:/home/calvin/bin:/home/calvin/.nebius/bin/:/home/calvin/.krew/bin:/home/calvin/miniconda3/envs/torch28/bin:/home/calvin/miniconda3/condabin:/home/calvin/.cargo/bin:/opt/go/bin:/home/calvin/.nvm/versions/node/v21.6.2/bin:/usr/local/cuda-12/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/var/lib/rancher/rke2/bin:/var/lib/rancher/rke2/bin"
+ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda-12/lib64:"
+RUN make -C /opt/nccl-tests MPI=1
 
 
 
