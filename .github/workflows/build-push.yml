@@ -18,6 +18,8 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Check disk usage
+        run: df -h
       - uses: actions/checkout@v4
       - name: REUSE lint
         uses: fsfe/reuse-action@v5
