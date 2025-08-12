@@ -4,17 +4,15 @@
 
 # GPU Cluster Acceptance & Distributed Training Test Harness (Smoke Testing)
 
-This project is intended to do acceptance testing of the installation of GPU-accelerated hardware.
-
 This repository provides a portable, open-source containerized test harness for **GPU cluster acceptance testing** and **distributed model training**.  
 
 It is designed for **Cloud/Infrastructure engineers** who need to validate NVIDIA GPU systems ranging from embedded developer kits to large-scale NVLink/NVSwitch clusters.
 
 This can be run as a container to verify the installation of key software, key performance metrics
-such as Model-Flops Utilization, memory bandwidth, NVLink and Infiniband networking throughput and latencies.
+such as Model-Flops Utilization, memory bandwidth, FS I/O, NVLink and Infiniband networking throughput and latencies.
 
 At the moment it focuses on NVIDIA H100/H200 and Orin AGX/Thor AGX Developer kits. Future versions
-will support other environments including RK3588.
+will support other environments including RKNN/RKNPU, ROCm, and Apple MLX.
 
 Methodology: Fail-Fast Progressive Testing
 
@@ -25,7 +23,9 @@ The test harness follows a fail-fast progression inspired by Together AI’s GPU
 	3. Progressively heavier tests — storage, networking, NCCL, NVLink, then multi-node scale-out.
 	4. Full distributed model training — only run after all infrastructure checks pass.
 
-This ensures we don’t waste expensive cluster time on nodes that will fail under load.
+This ensures we don’t waste expensive engineer time or cluster time on nodes that will fail under load.
+
+Please note that this repo is an initial launch and will be migrated to the NextGen HomeLabML project soon.
 
 ## Quick start
 ```bash
