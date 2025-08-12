@@ -9,6 +9,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN git clone --depth 1 https://github.com/NVIDIA/nvbandwidth /opt/nvbandwidth
 WORKDIR /opt/nvbandwidth
 # RUN . ./debian_install.sh
+RUN apt-get -y update
 RUN apt-get install -y software-properties-common
 RUN apt-get install -y apt-transport-https
 RUN apt-get -y update
