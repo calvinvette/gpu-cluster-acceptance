@@ -50,7 +50,7 @@ ENV OMPI_HOME="/opt/hpcx/ompi"
 ENV MPI_HOME="/opt/hpcx/ompi"
 ENV OSHMEM_HOME="/opt/hpcx/ompi"
 ENV SHMEM_HOME="/opt/hpcx/ompi"
-ENV PATH="/home/calvin/.local/bin:/home/calvin/bin:/home/calvin/.nebius/bin/:/home/calvin/.krew/bin:/home/calvin/miniconda3/envs/torch28/bin:/home/calvin/miniconda3/condabin:/home/calvin/.cargo/bin:/opt/go/bin:/home/calvin/.nvm/versions/node/v21.6.2/bin:/usr/local/cuda-12/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/var/lib/rancher/rke2/bin:/var/lib/rancher/rke2/bin"
+ENV PATH="/usr/local/cuda-12/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/opt/nvbandwidth:/opt/hpcx/:/opt/hpcx/ucc/bin:/opt/hpcx/ucx/bin:/opt/hpcx/sharp/bin:/opt/hpcx/ompi/bin:/opt/hpcx/clusterkit/bin:/opt/hpcx/hcoll/bin"
 ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda-12/lib64:"
 RUN make -C /opt/nccl-tests MPI=1
 
