@@ -50,7 +50,6 @@ WORKDIR /tmp
 RUN curl -LO 'https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz'
 # RUN wget -O 'https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz'
 RUN tar -C /opt -xvpf hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz
-RUN rm /tmp/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64.tbz
 RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
 # Setting the environment via script failed; doing manual ENV commands instead
 # RUN . /opt/hpcx/hpcx-init.sh
