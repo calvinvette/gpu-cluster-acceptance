@@ -35,7 +35,7 @@ RUN apt-get install -y libboost-all-dev libboost-program-options-dev
 RUN mkdir -p /opt/nvbandwidth/build
 WORKDIR /opt/nvbandwidth/build
 RUN cmake ..
-RUN make -C /opt/nvbandwidth/build
+RUN make -j ${nproc} -C /opt/nvbandwidth/build
 
 # HPCX
 WORKDIR /tmp
@@ -69,7 +69,7 @@ ENV SHMEM_HOME="/opt/hpcx/ompi"
 
 # nccl-tests
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
-RUN make -C /opt/nccl-tests MPI=1
+RUN make -j ${nproc} -C /opt/nccl-tests MPI=1
 
 # Upgrade pip and install uv
 RUN pip3 install --no-cache-dir --upgrade pip
@@ -94,7 +94,7 @@ RUN ls -la flash-attention/dist/
 WORKDIR /workspace
 RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
 WORKDIR /workspace/dcgm-exporter
-RUN make binary && make install
+RUN make -j ${nproc} binary && make install
 RUN find .
 
 
