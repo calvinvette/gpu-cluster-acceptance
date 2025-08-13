@@ -74,20 +74,17 @@ RUN pip3 install packaging uv
 # TODO - optimize this build (see NGE/torch-cuda/build.sh)
 # RUN uv pip install --system flash-attn==2.8.2 --no-build-isolation
 # First build flash_attention
-ENV SMS="87"
+RUN mkdir -p /workspace
+WORKDIR /workspace
+# TODO - Parameterize the GPU Arch
+ENV SMS="87"            # Build for Ampere and above; Consider flash-attn3 for Blackwell
 ENV CUDA_ARCH_BIN="87"
 ENV CUDA_HOME=/usr/local/cuda
+# TODO - Parameterize the version and file name to make upgrades easier
 RUN git clone --branch v2.8.2 --depth 1 https://github.com/Dao-AILab/flash-attention.git
 RUN cd flash-attention && MAX_JOBS=8 python setup.py build develop bdist_wheel
 # Wheel should be here:
 RUN ls -la flash-attention/dist/
-RUN uv pip install --system flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl
-
-# PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
-RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
-    torch \
-    torchvision \
-    torchaudio
 
 
 
@@ -106,7 +103,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # (Optional) DCGM tools inside container if you want to run dcgmi from here
 # TODO - Fix this - Apparently we can't have nice things... 
-# RUN apt-get update && apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
 
 # Python deps (install only what you need)
 COPY pyproject.toml /app/pyproject.toml
@@ -114,11 +111,27 @@ WORKDIR /app
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uvicorn uv
 
-RUN uv pip install --system -e /app
 
 # Copy binaries from builder
 COPY --from=builder /opt/nvbandwidth /opt/nvbandwidth
 COPY --from=builder /opt/nccl-tests /opt/nccl-tests
+COPY --from=builder /opt/hcx /opt/hcx
+COPY --from=builder /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64
+RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
+
+# Copy the flash_attn we built in the builder and install it
+# TODO - Parameterize the file name to make upgrades easier
+COPY --from=builder /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl
+RUN uv pip install --system /tmp/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl
+
+# PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
+RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
+    torch \
+    torchvision \
+    torchaudio
+
+# Now add the model training app.
+RUN uv pip install --system -e /app
 
 # Non-root user & workspace
 RUN useradd -ms /bin/bash trainer && mkdir -p /workspace && chown -R trainer:trainer /workspace /opt
@@ -128,4 +141,5 @@ WORKDIR /workspace
 COPY --chown=trainer:trainer scripts/ ./scripts/
 COPY --chown=trainer:trainer training/ ./training/
 COPY --chown=trainer:trainer configs/ ./configs/
-ENV PATH="/opt/nvbandwidth:/opt/nccl-tests:${PATH}"
+
+ENV PATH="/opt/nvbandwidth:/opt/nccl-tests:/opt/hpcx/:/opt/hpcx/ucc/bin:/opt/hpcx/ucx/bin:/opt/hpcx/sharp/bin:/opt/hpcx/ompi/bin:/opt/hpcx/clusterkit/bin:/opt/hpcx/hcoll/bin:${PATH}"
