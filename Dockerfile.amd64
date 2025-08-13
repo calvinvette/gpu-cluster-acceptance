@@ -12,6 +12,8 @@ FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
     # PYTHON_VERSION=3.12
     # TORCH_VERSION=2.8.0
 
+RUN find / -name nvcc
+
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git build-essential cmake libopenmpi-dev openmpi-bin && \
     rm -rf /var/lib/apt/lists/*
