@@ -64,8 +64,8 @@ ENV OMPI_HOME="/opt/hpcx/ompi"
 ENV MPI_HOME="/opt/hpcx/ompi"
 ENV OSHMEM_HOME="/opt/hpcx/ompi"
 ENV SHMEM_HOME="/opt/hpcx/ompi"
-ENV PATH="/usr/local/cuda-12/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/opt/nvbandwidth:/opt/hpcx/:/opt/hpcx/ucc/bin:/opt/hpcx/ucx/bin:/opt/hpcx/sharp/bin:/opt/hpcx/ompi/bin:/opt/hpcx/clusterkit/bin:/opt/hpcx/hcoll/bin:${PATH}"
-ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda-12/lib64:${LD_LIBRARY_PATH}"
+# ENV PATH="/usr/local/cuda-12/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/opt/nvbandwidth:/opt/hpcx/:/opt/hpcx/ucc/bin:/opt/hpcx/ucx/bin:/opt/hpcx/sharp/bin:/opt/hpcx/ompi/bin:/opt/hpcx/clusterkit/bin:/opt/hpcx/hcoll/bin:${PATH}"
+# ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda-12/lib64:${LD_LIBRARY_PATH}"
 
 # nccl-tests
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
