@@ -91,6 +91,11 @@ RUN cd flash-attention && MAX_JOBS=8 python setup.py build develop bdist_wheel
 # Wheel should be here:
 RUN ls -la flash-attention/dist/
 
+WORKDIR /workspace
+RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
+WORKDIR /workspace/dcgm-exporter
+RUN make binary && make install
+RUN find .
 
 
 # ---- runtime ----
@@ -108,7 +113,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # (Optional) DCGM tools inside container if you want to run dcgmi from here
 # TODO - Fix this - Apparently we can't have nice things... 
-RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
+# RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
 
 # Python deps (install only what you need)
 COPY pyproject.toml /app/pyproject.toml
