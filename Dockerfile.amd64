@@ -114,6 +114,7 @@ WORKDIR /workspace
 RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
 WORKDIR /workspace/dcgm-exporter
 RUN apt-get install -y golang
+RUN go mod tidy
 RUN make -j ${nproc} binary && make install
 
 
