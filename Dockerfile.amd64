@@ -72,6 +72,7 @@ RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
 RUN make -j ${nproc} -C /opt/nccl-tests MPI=1
 
 # Upgrade pip and install uv
+RUN find / -name pip\*
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uv
 
