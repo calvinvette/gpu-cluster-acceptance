@@ -25,7 +25,7 @@ FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
     # FLASH_ATTN_VERION=v2.8.2
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    git build-essential cmake libopenmpi-dev openmpi-bin && \
+    git build-essential gcc make cmake ninja-build libopenmpi-dev openmpi-bin && \
     rm -rf /var/lib/apt/lists/*
 
 # nvbandwidth
@@ -104,7 +104,7 @@ RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.
 
 # Add MAX_JOBS=4 before the python3 setup.py if we have 96GB or RAM or less
 # RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
-RUN cd flash-attention && python3 setup.py build develop bdist_wheel
+RUN cd flash-attention && MAX_JOBS=$(expr $(nproc) / 4) python3 setup.py build develop bdist_wheel
 # Wheel should be here:
 RUN ls -la flash-attention/dist/
 
