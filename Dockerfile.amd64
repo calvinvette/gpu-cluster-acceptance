@@ -13,8 +13,6 @@ FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
     # PYTHON_VERSION=3.12
     # TORCH_VERSION=2.8.0
 
-RUN echo "FINDING NVCC..." && find / -name nvcc
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git build-essential cmake libopenmpi-dev openmpi-bin && \
     rm -rf /var/lib/apt/lists/*
@@ -69,6 +67,27 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda-12/lib64:"
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
 RUN make -C /opt/nccl-tests MPI=1
 
+# Upgrade pip and install uv
+RUN pip3 install --no-cache-dir --upgrade pip
+RUN pip3 install packaging uv
+
+# TODO - optimize this build (see NGE/torch-cuda/build.sh)
+# RUN uv pip install --system flash-attn==2.8.2 --no-build-isolation
+# First build flash_attention
+ENV SMS="87"
+ENV CUDA_ARCH_BIN="87"
+ENV CUDA_HOME=/usr/local/cuda
+RUN git clone --branch v2.8.2 --depth 1 https://github.com/Dao-AILab/flash-attention.git
+RUN cd flash-attention && MAX_JOBS=8 python setup.py build develop bdist_wheel
+# Wheel should be here:
+RUN ls -la flash-attention/dist/
+RUN uv pip install --system flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl
+
+# PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
+RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
+    torch \
+    torchvision \
+    torchaudio
 
 
 
@@ -94,17 +113,6 @@ COPY pyproject.toml /app/pyproject.toml
 WORKDIR /app
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uvicorn uv
-
-ENV PATH=${PATH}:/root/.local/bin/
-RUN echo $PATH
-# RUN find / -name uv
-
-# PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
-RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
-    torch \
-    torchvision \
-    torchaudio
-RUN uv pip install --system flash-attn==2.8.2 --no-build-isolation
 
 RUN uv pip install --system -e /app
 
