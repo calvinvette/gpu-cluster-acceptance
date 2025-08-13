@@ -1,4 +1,11 @@
-# Dockerfile.amd64: 
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2025 Calvin Vette
+# Dockerfile.amd64: GPU System Acceptance Testing 
+#   For AMD64 (Intel or AMD) motherboards with 
+#   either 1 or 8 A100, H100, H200, or B100, or B200 graphics cards
+#   with NVLink on 2 or more GPU boxes
+#   and Infiniband on multiple 8-GPU boxes networks
+
 # ---- builder ----
 # FROM nvcr.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
 FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
@@ -100,11 +107,15 @@ RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
 # Wheel should be here:
 RUN ls -la flash-attention/dist/
 
+# Build the DCGM Exporter
+# Note that DCGM Exporter is already installed by the NVIDIA GPU Operator in k8s
+# However we'll use it here for the acceptance testing independently
 WORKDIR /workspace
 RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
 WORKDIR /workspace/dcgm-exporter
+RUN apt-get install golang
 RUN make -j ${nproc} binary && make install
-RUN find .
+
 
 
 # ---- runtime ----
