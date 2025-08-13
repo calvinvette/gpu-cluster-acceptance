@@ -121,7 +121,7 @@ ENV PATH=${GO_HOME}/bin:$PATH
 
 RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
 WORKDIR /workspace/dcgm-exporter
-RUN make -j $(nproc) binary && make install
+RUN make -j$(nproc) binary && make install
 
 
 
@@ -152,14 +152,13 @@ RUN pip3 install packaging uvicorn uv
 # Copy binaries from builder
 COPY --from=builder /opt/nvbandwidth /opt/nvbandwidth
 COPY --from=builder /opt/nccl-tests /opt/nccl-tests
-COPY --from=builder /opt/hcx /opt/hcx
 COPY --from=builder /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64
 RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
 
 # Copy the flash_attn we built in the builder and install it
 # TODO - Parameterize the file name to make upgrades easier
-COPY --from=builder /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl
-RUN uv pip install --system /tmp/flash_attn-2.8.2-cp310-cp310-linux_amd64.whl
+COPY --from=builder /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
+RUN uv pip install --system /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
 
 # PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
 RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
