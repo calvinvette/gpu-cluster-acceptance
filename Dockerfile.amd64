@@ -42,7 +42,7 @@ RUN apt-get install -y libboost-all-dev libboost-program-options-dev
 RUN mkdir -p /opt/nvbandwidth/build
 WORKDIR /opt/nvbandwidth/build
 RUN cmake ..
-RUN make -j $(nproc) -C /opt/nvbandwidth/build
+RUN make -j$(nproc) -C /opt/nvbandwidth/build
 
 # HPCX
 WORKDIR /tmp
@@ -75,7 +75,7 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda-12/lib64:${LD_LIBRARY_PATH}"
 
 # nccl-tests
 RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
-RUN make -j $(nproc) -C /opt/nccl-tests MPI=1
+RUN make -j$(nproc) -C /opt/nccl-tests MPI=1
 
 # Upgrade pip and install uv
 RUN apt-get install -y python3-pip
@@ -123,6 +123,9 @@ RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
 WORKDIR /workspace/dcgm-exporter
 RUN make -j$(nproc) binary && make install
 
+RUN git clone --depth 1 https://github.com/wilicc/gpu-burn.git /workspace/gpu-burn
+WORKDIR /workspace/gpu-burn
+RUN make -j$(nproc) COMPUTE=${SMS}
 
 
 # ---- runtime ----
@@ -166,13 +169,32 @@ RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.
     torchvision \
     torchaudio
 
+# Copy gpu_burn from the builder
+COPY --from=builder /workspace/gpu-burn/gpu_burn /usr/local/bin/
+RUN mkdir -p /usr/local/share/man/man8/
+COPY --from=builder /workspace/gpu-burn/gpu-burn.8 /usr/local/share/man/man8/
+
+# Install the Infiniband tools
+# https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation
+RUN apt-get install -y \
+    ibutils \
+    ibutils-libs \
+    opensm \
+    opensm-libs \
+    rdma-core \
+    libibmad5 \
+    infiniband-diags \
+    perftest \
+    mstflint
+
 # Now add the model training app.
 RUN uv pip install --system -e /app
 
 # Non-root user & workspace
 RUN useradd -ms /bin/bash trainer && mkdir -p /workspace && chown -R trainer:trainer /workspace /opt
 USER trainer
-WORKDIR /workspace
+WORKDIR /app
+RUN chown trainer:trainer /app
 
 COPY --chown=trainer:trainer scripts/ ./scripts/
 COPY --chown=trainer:trainer training/ ./training/
