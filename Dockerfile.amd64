@@ -88,7 +88,7 @@ ENV CUDA_ARCH_BIN="87"
 ENV CUDA_HOME="/usr/local/cuda"
 # TODO - Parameterize the version and file name to make upgrades easier
 RUN git clone --branch v2.8.2 --depth 1 https://github.com/Dao-AILab/flash-attention.git
-RUN cd flash-attention && MAX_JOBS=8 python setup.py build develop bdist_wheel
+RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
 # Wheel should be here:
 RUN ls -la flash-attention/dist/
 
