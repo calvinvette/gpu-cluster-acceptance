@@ -103,7 +103,9 @@ RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.
     torchvision \
     torchaudio
 
-RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
+# Add MAX_JOBS=4 before the python3 setup.py if we have 96GB or RAM or less
+# RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
+RUN cd flash-attention && python3 setup.py build develop bdist_wheel
 # Wheel should be here:
 RUN ls -la flash-attention/dist/
 
