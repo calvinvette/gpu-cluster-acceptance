@@ -72,8 +72,8 @@ RUN git clone --depth 1 https://github.com/NVIDIA/nccl-tests /opt/nccl-tests
 RUN make -C /opt/nccl-tests MPI=1
 
 # Upgrade pip and install uv
-RUN pip3 install --no-cache-dir --upgrade pip
-RUN pip3 install packaging uv
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install packaging uv
 
 # TODO - optimize this build (see NGE/torch-cuda/build.sh)
 # RUN uv pip install --system flash-attn==2.8.2 --no-build-isolation
