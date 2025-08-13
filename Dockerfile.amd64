@@ -113,7 +113,7 @@ RUN ls -la flash-attention/dist/
 WORKDIR /workspace
 RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
 WORKDIR /workspace/dcgm-exporter
-RUN apt-get install golang
+RUN apt-get install -y golang
 RUN make -j ${nproc} binary && make install
 
 
