@@ -144,8 +144,9 @@ RUN make -j$(nproc) COMPUTE=${SMS}
 
 
 # ---- runtime ----
+# TODO - revert this back to runtime and fill in the minimal parts from develop that are necessary
 # FROM nvcr.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
-FROM docker.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
+FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04
 
 LABEL org.opencontainers.image.licenses="AGPL-3.0-only"
 
@@ -161,7 +162,6 @@ COPY pyproject.toml /app/pyproject.toml
 WORKDIR /app
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uvicorn uv
-
 
 # Copy binaries from builder
 COPY --from=builder /opt/nvbandwidth /opt/nvbandwidth
@@ -204,11 +204,11 @@ ENV PATH="/opt/nvbandwidth:/opt/nccl-tests:/opt/hpcx/:/opt/hpcx/ucc/bin:/opt/hpc
 USER root
 
 RUN echo "Etc/UTC" > /etc/timezone
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata curl wget
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
 RUN wget -P /etc/apt/sources.list.d https://linux.mellanox.com/public/repo/mlnx_ofed/latest/ubuntu22.04/mellanox_mlnx_ofed.list
 RUN wget -O /etc/apt/trusted.gpg.d/mellanox.gpg https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox
-RUN apt-get update -y
+# RUN apt-get update -y
 
 # (Optional) DCGM tools inside container if you want to run dcgmi from here
 # TODO - Fix this - Apparently we can't have nice things... 
