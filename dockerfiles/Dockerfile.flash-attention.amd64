@@ -61,5 +61,14 @@ RUN mkdir -p /out
 # Add MAX_JOBS=4 before the python3 setup.py if we have 96GB or RAM or less
 # RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
 RUN cd flash-attention && MAX_JOBS=$(expr $(nproc) / 4) python3 setup.py build develop bdist_wheel
+
 # Wheel should be here:
-RUN cp /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /out/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
+# /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
+# Run this container and dump it out:
+# mkdir -p ../out
+# docker run \
+#         --rm \
+#         -it \
+#         -v ../out:/out \
+#         --name booger nge/builder.flash-attention \
+#         cp /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /out/

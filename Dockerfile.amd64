@@ -83,10 +83,9 @@ RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uv
 
 # Flash Attention should be compiled with optimizations and dumped in ./out
+# It can be a real beast to compile, so it should be done externally (as part of a build pipeline)
 # See dockerfiles/Dockerfile.flash-attention.${arch} and 2_flash_attention_build.sh
 # Alternatively, download a pre-compiled copy and dump it there
-# Wheel should be here:
-COPY out/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
 
 # Build the DCGM Exporter
 # Note that DCGM Exporter is already installed by the NVIDIA GPU Operator in k8s
@@ -143,8 +142,13 @@ RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
 
 # Copy the flash_attn we built in the builder and install it
 # TODO - Parameterize the file name to make upgrades easier
-COPY --from=builder /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
+# Wheel should be here (see instructions in builder above, or Dockerfile/scripts in dockerfiles/):
+# Comment these two lines out for GitHub actions
+COPY out/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
 RUN uv pip install --system /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
+# Uncomment out this line for GitHub actions - a full compile of flash-attention can take hours
+# The generic version won't be as optimized, but it will get us over the line
+# RUN uv pip install --system flash_attn==2.8.2
 
 # PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
 RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \

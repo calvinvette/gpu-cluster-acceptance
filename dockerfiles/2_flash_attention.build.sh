@@ -5,7 +5,7 @@
 # TODO
 # There has to be a cleaner way of doing this...
 
-mkdir -p out
+mkdir -p ../out
 
 docker build . \
     -f Dockerfile.flash-attention.amd64 \
@@ -13,11 +13,7 @@ docker build . \
     && \
 docker run \
         --rm \
-        --gpus all \
-        --runtime=nvidia \
-        --ipc=host \
-        --network host \
         -it \
-        -v ./out:/out \
+        -v ../out:/out \
         --name booger nge/builder.flash-attention \
         cp /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /out/
