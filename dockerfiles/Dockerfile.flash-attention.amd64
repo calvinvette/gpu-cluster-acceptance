@@ -15,8 +15,12 @@ FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04
 RUN mkdir -p /workspace
 WORKDIR /workspace
 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git build-essential gcc make cmake ninja-build libopenmpi-dev openmpi-bin && \
+    rm -rf /var/lib/apt/lists/*
+
 # Upgrade pip and install uv
-RUN apt-get install -y python3-pip
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uv
 
@@ -58,4 +62,4 @@ RUN mkdir -p /out
 # RUN cd flash-attention && MAX_JOBS=8 python3 setup.py build develop bdist_wheel
 RUN cd flash-attention && MAX_JOBS=$(expr $(nproc) / 4) python3 setup.py build develop bdist_wheel
 # Wheel should be here:
-COPY /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /out/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
+RUN cp /workspace/flash-attention/dist/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /out/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
