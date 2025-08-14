@@ -119,11 +119,35 @@ Base Images
 	•	x86_64 / H100 / H200: nvcr.io/nvidia/pytorch:24.07-py3
 	•	ARM64 / Orin / Thor: nvcr.io/nvidia/l4t-ml:r36.3.0-py3
 
+## Future Work
+The framework is flexible enough that additional scripts can be added for additional tests.
+
+While each of these scripts works independently, it would be nice to be able to extract their running values and submit them to Prometheus/OpenTelemetry to be graphed with Grafana.
 
 
 ## Acknowledgments
 Test progression and methodology inspired by
 [A Practitioner’s Guide to Testing and Running Large GPU Clusters for Training Generative AI Models](https://www.together.ai/blog/a-practitioners-guide-to-testing-and-running-large-gpu-clusters-for-training-generative-ai-models) by Together AI.
+
+[GPU Burn from Ville Timonen](http://wili.cc/blog/gpu-burn.html)
+[GPU Burn GitHiub](https://github.com/wilicc/gpu-burn?tab=readme-ov-file)
+```
+GPU Burn
+Usage: gpu_burn [OPTIONS] [TIME]
+
+-m X   Use X MB of memory
+-m N%  Use N% of the available GPU memory
+-d     Use doubles
+-tc    Try to use Tensor cores (if available)
+-l     List all GPUs in the system
+-i N   Execute only on GPU N
+-h     Show this help message
+
+Example:
+gpu_burn -tc -d 3600
+```
+
+[NVIDIA's "Important Packages and their installation"](https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation)
 
 ## License
 AGPL‑3.0. See [LICENSE](./LICENSE).

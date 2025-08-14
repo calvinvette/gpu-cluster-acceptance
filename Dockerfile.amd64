@@ -83,7 +83,12 @@ RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install packaging uv
 
 # Compile Flash Attention
+# TODO - Parameterize the version and file name to make upgrades easier
 # TODO - optimize this build (see NGE/torch-cuda/build.sh)
+# TODO - migrate this out to its own build job and deposit into local pip repo
+#   (See NGE's build system)
+# Doing the straight pip install does the (unoptimized compile)
+# We're paying a penalty for this regardless
 # RUN uv pip install --system flash-attn==2.8.2 --no-build-isolation
 # First build flash_attention
 RUN mkdir -p /workspace
@@ -93,9 +98,17 @@ WORKDIR /workspace
 ENV SMS="87"            
 ENV CUDA_ARCH_BIN="87"
 ENV CUDA_HOME="/usr/local/cuda"
-# TODO - Parameterize the version and file name to make upgrades easier
+# TODO - Verify these optimizations; they change over time
+# We need to build MAGMA (BLAS) with CUDA support
+export MAGMA_ENABLE_CUDA=ON
+# Pytorch build recommends this. Why?
+export USE_PRIORITIZED_TEXT_FOR_LD=1
+# Use the new C++ ABI
+export _GLIBCXX_USE_CXX11_ABI=1
+
+# Now let's actually build the thing
 RUN git clone --branch v2.8.2 --depth 1 https://github.com/Dao-AILab/flash-attention.git
-# First install torch and friends
+# First install torch and friends (necessary for the build)
 # PyTorch + CUDA 12.4 wheel (smaller than NGC PyTorch image)
 RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.org/whl/cu124 \
     torch \
@@ -113,6 +126,8 @@ RUN ls -la flash-attention/dist/
 # However we'll use it here for the acceptance testing independently
 # First we need to update golang from 1.18 to something more recent
 WORKDIR /workspace
+
+# First, remove the ancient version of go (1.18) that comes installed and replace it with modern go.
 RUN apt-get remove -y golang-go
 RUN wget https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
 RUN tar -C /usr/local/ -xvpf go1.25.0.linux-amd64.tar.gz
@@ -138,12 +153,8 @@ LABEL org.opencontainers.image.licenses="AGPL-3.0-only"
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 python3-pip python3-venv \
     rdma-core libibverbs1 libopenmpi3 openmpi-bin \
-    pciutils iproute2 iputils-ping jq fio && \
+    pciutils iproute2 iputils-ping jq fio curl wget && \
     rm -rf /var/lib/apt/lists/*
-
-# (Optional) DCGM tools inside container if you want to run dcgmi from here
-# TODO - Fix this - Apparently we can't have nice things... 
-# RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
 
 # Python deps (install only what you need)
 COPY pyproject.toml /app/pyproject.toml
@@ -173,31 +184,50 @@ RUN uv pip install --system --no-cache-dir --index-url https://download.pytorch.
 COPY --from=builder /workspace/gpu-burn/gpu_burn /usr/local/bin/
 RUN mkdir -p /usr/local/share/man/man8/
 COPY --from=builder /workspace/gpu-burn/gpu-burn.8 /usr/local/share/man/man8/
-
-# Install the Infiniband tools
-# https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation
-RUN apt-get install -y \
-    ibutils \
-    ibutils-libs \
-    opensm \
-    opensm-libs \
-    rdma-core \
-    libibmad5 \
-    infiniband-diags \
-    perftest \
-    mstflint
+RUN mkdir -p /usr/local/lib/gpu_burn
+COPY --from=builder /workspace/gpu-burn/compare.ptx /usr/local/lib/gpu_burn/
 
 # Now add the model training app.
 RUN uv pip install --system -e /app
 
-# Non-root user & workspace
+# Non-root user & workspace for non-privileged wwork
 RUN useradd -ms /bin/bash trainer && mkdir -p /workspace && chown -R trainer:trainer /workspace /opt
-USER trainer
 WORKDIR /app
-RUN chown trainer:trainer /app
 
 COPY --chown=trainer:trainer scripts/ ./scripts/
 COPY --chown=trainer:trainer training/ ./training/
 COPY --chown=trainer:trainer configs/ ./configs/
 
 ENV PATH="/opt/nvbandwidth:/opt/nccl-tests:/opt/hpcx/:/opt/hpcx/ucc/bin:/opt/hpcx/ucx/bin:/opt/hpcx/sharp/bin:/opt/hpcx/ompi/bin:/opt/hpcx/clusterkit/bin:/opt/hpcx/hcoll/bin:${PATH}"
+
+# We need to be root to run some of the utils like gpu-burn.
+USER root
+
+RUN echo "Etc/UTC" > /etc/timezone
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata curl wget
+
+RUN wget -P /etc/apt/sources.list.d https://linux.mellanox.com/public/repo/mlnx_ofed/latest/ubuntu22.04/mellanox_mlnx_ofed.list
+RUN wget -O /etc/apt/trusted.gpg.d/mellanox.gpg https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox
+RUN apt-get update -y
+
+# (Optional) DCGM tools inside container if you want to run dcgmi from here
+# TODO - Fix this - Apparently we can't have nice things... 
+# RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
+#RUN apt-get install -y dcgm dcgm-exporter 
+COPY --from=builder /workspace/dcgm-exporter /app/dcgm-exporter
+
+
+# Install the Infiniband tools
+# https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation
+# Repo no longer has the "-libs" packages for ibutils and opensm
+# ibutils-libs \
+# opensm-libs \
+RUN apt-get install -y \
+    ibutils \
+    opensm \
+    rdma-core \
+    libibmad5 \
+    infiniband-diags \
+    perftest \
+    mstflint
+    

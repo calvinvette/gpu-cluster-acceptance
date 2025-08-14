@@ -20,3 +20,4 @@ COPY --chown=trainer:trainer scripts/ ./scripts/
 COPY --chown=trainer:trainer training/ ./training/
 COPY --chown=trainer:trainer configs/ ./configs/
 ENV PATH="/opt/nvbandwidth:${PATH}"
+USER ROOT
