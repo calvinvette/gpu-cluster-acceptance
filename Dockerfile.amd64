@@ -134,7 +134,12 @@ RUN tar -C /usr/local/ -xvpf go1.25.0.linux-amd64.tar.gz
 ENV GO_HOME=/usr/local/go
 ENV PATH=${GO_HOME}/bin:$PATH
 
-RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git
+RUN git clone --depth 1 https://github.com/NVIDIA/DCGM.git /workspace/dcgm
+WORKDIR /workspace/dcgm
+# RUN ./build.sh
+# RUN make -j$(nproc) binary && make install
+
+RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git /workspace/dcgm-exporter
 WORKDIR /workspace/dcgm-exporter
 RUN make -j$(nproc) binary && make install
 
@@ -215,7 +220,9 @@ RUN wget -O /etc/apt/trusted.gpg.d/mellanox.gpg https://www.mellanox.com/downloa
 # RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
 #RUN apt-get install -y dcgm dcgm-exporter 
 COPY --from=builder /workspace/dcgm-exporter /app/dcgm-exporter
+COPY --from=builder /workspace/dcgm /tmp/dcgm/
 
+# RUN systemctl --now enable nvidia-dcgm
 
 # Install the Infiniband tools
 # https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation
