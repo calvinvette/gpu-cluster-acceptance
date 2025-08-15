@@ -30,10 +30,26 @@ Please note that this repo is an initial launch and will be migrated to the Next
 ## Quick start
 ```bash
 # build (amd64)
-docker build -f Dockerfile.amd64 -t ghcr.io/calvinvette/gpu-acceptance-testing:amd64-local .
+docker build -f Dockerfile.amd64 -t ghcr.io/calvinvette/gpu-cluster-acceptance:amd64-local .
 # run progressive checks
-docker run --rm --gpus all --ipc=host --network host ghcr.io/calvinvette/gpu-acceptance-testing:amd64-local   bash -lc 'set -e; ./scripts/00_env_probe.sh && python3 scripts/01_cuda_probe.py &&             ./scripts/02_nccl_probe.sh && ./scripts/03_dcgm_diag.sh &&             ./scripts/04_nvlink_matrix.sh && ./scripts/07_fio.sh'
+docker run \
+        --rm \
+        --gpus all \
+        --ipc=host \
+        --network host \
+        ghcr.io/calvinvette/gpu-cluster-acceptance \
+        bash -lc 'set -e; \
+                ./scripts/00_env_probe.sh && \
+                python3 scripts/01_cuda_probe.py && \
+                ./scripts/02_nccl_probe.sh && \
+                ./scripts/03_dcgm_diag.sh && \
+                ./scripts/04_nvlink_matrix.sh && \
+                ./scripts/05.1_gpu_burn.sh && \
+                ./scripts/07_fio.sh'
+'
 ```
+
+A variant of the "docker run" above is in `run.sh`
 
 
 ---
