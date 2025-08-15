@@ -86,6 +86,7 @@ RUN pip3 install packaging uv
 # It can be a real beast to compile, so it should be done externally (as part of a build pipeline)
 # See dockerfiles/Dockerfile.flash-attention.${arch} and 2_flash_attention_build.sh
 # Alternatively, download a pre-compiled copy and dump it there
+# TODO - make this work better with build arguments
 
 # Build the DCGM Exporter
 # Note that DCGM Exporter is already installed by the NVIDIA GPU Operator in k8s
@@ -105,8 +106,9 @@ WORKDIR /workspace/dcgm
 # RUN ./build.sh
 # RUN make -j$(nproc) binary && make install
 
-RUN git clone --depth 1 https://github.com/NVIDIA/dcgm-exporter.git /workspace/dcgm-exporter
+RUN git clone https://github.com/NVIDIA/dcgm-exporter.git /workspace/dcgm-exporter
 WORKDIR /workspace/dcgm-exporter
+RUN git checkout 4.3.1-4.4.0
 RUN make -j$(nproc) binary && make install
 
 RUN git clone --depth 1 https://github.com/wilicc/gpu-burn.git /workspace/gpu-burn
@@ -140,9 +142,10 @@ COPY --from=builder /opt/nccl-tests /opt/nccl-tests
 COPY --from=builder /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64
 RUN ln -s /opt/hpcx-v2.23-gcc-doca_ofed-ubuntu22.04-cuda12-x86_64 /opt/hpcx
 
-# Copy the flash_attn we built in the builder and install it
+# Copy the flash_attn we built in the previous builder in the pipeline and install it
 # TODO - Parameterize the file name to make upgrades easier
 # Wheel should be here (see instructions in builder above, or Dockerfile/scripts in dockerfiles/):
+# TODO - make this work better with build arguments
 # Comment these two lines out for GitHub actions
 COPY out/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
 RUN uv pip install --system /tmp/flash_attn-2.8.2-cp310-cp310-linux_x86_64.whl
