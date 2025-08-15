@@ -203,7 +203,7 @@ RUN apt-get install -y datacenter-gpu-manager
 RUN wget -P /etc/apt/sources.list.d https://linux.mellanox.com/public/repo/mlnx_ofed/latest/ubuntu22.04/mellanox_mlnx_ofed.list
 RUN wget -q -O - https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox | gpg --dearmor -o /etc/apt/keyrings/mellanox.gpg
 RUN cp /etc/apt/keyrings/mellanox.gpg /usr/share/keyrings/
-RUN sed -i 's#^deb#deb [signed-by=/usr/share/keyrings/mellanox.gpg]#' mellanox_mlnx_ofed.list
+RUN sed -i 's#^deb#deb [signed-by=/usr/share/keyrings/mellanox.gpg]#' /etc/apt/sources.list.d/mellanox_mlnx_ofed.list
 
 
 # Install the Infiniband tools
