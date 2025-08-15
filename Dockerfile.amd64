@@ -24,6 +24,9 @@ FROM docker.io/nvidia/cuda:12.4.1-devel-ubuntu22.04 AS builder
     # CUDA_HOME="/usr/local/cuda"
     # FLASH_ATTN_VERION=v2.8.2
 
+ENV SMS="87"            
+ENV CUDA_ARCH_BIN=${SMS}
+
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     git build-essential gcc make cmake ninja-build libopenmpi-dev openmpi-bin && \
     rm -rf /var/lib/apt/lists/*
