@@ -192,18 +192,15 @@ USER root
 RUN echo "Etc/UTC" > /etc/timezone
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
+RUN dpkg -i cuda-keyring_1.0-1_all.deb
+RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+RUN apt-get update -y
+RUN apt-get install -y datacenter-gpu-manager
+
 RUN wget -P /etc/apt/sources.list.d https://linux.mellanox.com/public/repo/mlnx_ofed/latest/ubuntu22.04/mellanox_mlnx_ofed.list
 RUN wget -O /etc/apt/trusted.gpg.d/mellanox.gpg https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox
-# RUN apt-get update -y
-
-# (Optional) DCGM tools inside container if you want to run dcgmi from here
-# TODO - Fix this - Apparently we can't have nice things... 
-# RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
-#RUN apt-get install -y dcgm dcgm-exporter 
-COPY --from=builder /workspace/dcgm-exporter /app/dcgm-exporter
-COPY --from=builder /workspace/dcgm /tmp/dcgm/
-
-# RUN systemctl --now enable nvidia-dcgm
+# TODO - fix the mellanox gpg signing issue above - it breaks the apt update
 
 # Install the Infiniband tools
 # https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation
@@ -211,11 +208,23 @@ COPY --from=builder /workspace/dcgm /tmp/dcgm/
 # ibutils-libs \
 # opensm-libs \
 RUN apt-get install -y \
-    ibutils \
-    opensm \
-    rdma-core \
-    libibmad5 \
-    infiniband-diags \
-    perftest \
-    mstflint
-    
+ibutils \
+opensm \
+rdma-core \
+libibmad5 \
+infiniband-diags \
+perftest \
+mstflint
+
+# (Optional) DCGM tools inside container if you want to run dcgmi from here
+# TODO - Fix this - Apparently we can't have nice things... 
+# RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
+#RUN apt-get install -y dcgm dcgm-exporter 
+COPY --from=builder /workspace/dcgm-exporter /tmp/dcgm-exporter
+WORKDIR /tmp/dcgm-exporter
+RUN make install
+COPY --from=builder /workspace/dcgm /tmp/dcgm/
+WORKDIR /tmp/dcgm
+RUN make install
+RUN systemctl --now enable nvidia-dcgm
+
