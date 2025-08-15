@@ -192,6 +192,8 @@ USER root
 RUN echo "Etc/UTC" > /etc/timezone
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
+RUN apt-get install -y software-properties-common apt-transport-https
+RUN apt-get update -y
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
 RUN dpkg -i cuda-keyring_1.0-1_all.deb
 RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
@@ -220,6 +222,14 @@ mstflint
 # TODO - Fix this - Apparently we can't have nice things... 
 # RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
 #RUN apt-get install -y dcgm dcgm-exporter 
+# TODO - use the builder to package up the build properly instead of using "make" again
+# which requires golang
+RUN apt-get remove -y golang-go
+RUN wget https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
+RUN tar -C /usr/local/ -xvpf go1.25.0.linux-amd64.tar.gz
+ENV GO_HOME=/usr/local/go
+ENV PATH=${GO_HOME}/bin:$PATH
+
 COPY --from=builder /workspace/dcgm-exporter /tmp/dcgm-exporter
 WORKDIR /tmp/dcgm-exporter
 RUN make install
