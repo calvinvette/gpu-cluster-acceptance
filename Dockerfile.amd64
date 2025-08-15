@@ -196,13 +196,15 @@ RUN apt-get install -y software-properties-common apt-transport-https
 RUN apt-get update -y
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
 RUN dpkg -i cuda-keyring_1.0-1_all.deb
-RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
 RUN apt-get update -y
 RUN apt-get install -y datacenter-gpu-manager
 
 RUN wget -P /etc/apt/sources.list.d https://linux.mellanox.com/public/repo/mlnx_ofed/latest/ubuntu22.04/mellanox_mlnx_ofed.list
-RUN wget -O /etc/apt/trusted.gpg.d/mellanox.gpg https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox
-# TODO - fix the mellanox gpg signing issue above - it breaks the apt update
+RUN wget -q -O - https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox | gpg --dearmor -o /etc/apt/keyrings/mellanox.gpg
+RUN cp /etc/apt/keyrings/mellanox.gpg /usr/share/keyrings/
+RUN sed -i 's#^deb#deb [signed-by=/usr/share/keyrings/mellanox.gpg]#' mellanox_mlnx_ofed.list
+
 
 # Install the Infiniband tools
 # https://docs.nvidia.com/networking/display/ubuntu2204/important+packages+and+their+installation
@@ -219,22 +221,19 @@ perftest \
 mstflint
 
 # (Optional) DCGM tools inside container if you want to run dcgmi from here
-# TODO - Fix this - Apparently we can't have nice things... 
-# RUN apt-get install -y dcgm dcgm-exporter && rm -rf /var/lib/apt/lists/*
-#RUN apt-get install -y dcgm dcgm-exporter 
-# TODO - use the builder to package up the build properly instead of using "make" again
-# which requires golang
-RUN apt-get remove -y golang-go
-RUN wget https://go.dev/dl/go1.25.0.linux-amd64.tar.gz
-RUN tar -C /usr/local/ -xvpf go1.25.0.linux-amd64.tar.gz
-ENV GO_HOME=/usr/local/go
-ENV PATH=${GO_HOME}/bin:$PATH
 
-COPY --from=builder /workspace/dcgm-exporter /tmp/dcgm-exporter
-WORKDIR /tmp/dcgm-exporter
-RUN make install
-COPY --from=builder /workspace/dcgm /tmp/dcgm/
-WORKDIR /tmp/dcgm
-RUN make install
-RUN systemctl --now enable nvidia-dcgm
+# DCGM Exporter
+COPY --from=builder /workspace/dcgm-exporter/cmd/dcgm-exporter/dcgm-exporter /usr/bin/dcgm-exporter
+RUN chmod 755 /usr/bin/dcgm-exporter
+RUN mkdir -p /etc/dcgm-exporter/
+COPY --from=builder /workspace/dcgm-exporter/etc/default-counters.csv /etc/dcgm-exporter/default-counters.csv
+RUN chmod 644 /etc/dcgm-exporter/default-counters.csv
+
+# COPY --from=builder /workspace/dcgm /tmp/dcgm/
+# WORKDIR /tmp/dcgm
+# RUN make install
+# WORKDIR /tmp/dcgm-exporter
+# RUN make install
+# If we're running systemd, enable DCGM
+# RUN systemctl --now enable nvidia-dcgm
 
